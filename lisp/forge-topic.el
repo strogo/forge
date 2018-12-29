@@ -125,13 +125,7 @@ The following %-sequences are supported:
 
 (cl-defmethod forge--object-id ((prefix string) id)
   (base64-encode-string
-   (format "%s:%s"
-           (base64-decode-string prefix)
-           ;; TODO Simply use `id', which is always an integer, except
-           ;; when called by `forge--update-labels(gitlab)', in which
-           ;; case the string also shouldn't be decoded because it is
-           ;; NOT base64 encoded.
-           (or (ignore-errors (base64-decode-string id)) id))
+   (format "%s:%s" (base64-decode-string prefix) id)
    t))
 
 ;;; Query
