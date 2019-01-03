@@ -203,13 +203,22 @@ forges and hosts.  "
 
 ;;; Utilities
 
+(defvar forge--initial-topic-until nil
+  "When pulling a repository for the first time, limit fetched topics.
+When this is non-nil, then it should be a time string of the form
+\"YYYY-MM-DD\".  Only topics that have not been updated since
+that date will be pulled.  You have to set this variable manually
+before pulling and then also manually set it back to nil when
+that has completed.")
+
 (cl-defmethod forge--topics-until ((repo forge-repository) table)
-  (and (not (oref repo sparse-p))
-       (caar (forge-sql [:select [updated] :from $s1
-                         :where (= repository $s2)
-		         :order-by [(desc updated)]
-                         :limit 1]
-                        table (oref repo id)))))
+  (if (oref repo sparse-p)
+      forge--initial-topic-until
+    (caar (forge-sql [:select [updated] :from $s1
+                      :where (= repository $s2)
+                      :order-by [(desc updated)]
+                      :limit 1]
+                     table (oref repo id)))))
 
 (cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
   (format-spec
